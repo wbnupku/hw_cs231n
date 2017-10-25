@@ -56,8 +56,6 @@ def svm_loss_naive(W, X, y, reg):
   # loss is being computed. As a result you may need to modify some of the    #
   # code above to compute the gradient.                                       #
   #############################################################################
-
-
   return loss, dW
 
 
@@ -76,6 +74,9 @@ def svm_loss_vectorized(W, X, y, reg):
   # result in loss.                                                           #
   #############################################################################
   pass
+  scores = X.dot(W)
+  y_inds = [(i, y[i]) for i in range(0, y.shape[0])]
+  
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
