@@ -75,21 +75,21 @@ def svm_loss_vectorized(W, X, y, reg):
     # result in loss.                                                           #
     #############################################################################
     pass
+    num_train = y.shape[0]
     scores = X.dot(W)
-    correct_class_score = scores[range(0, y.shape[0]), y]
+    correct_class_score = scores[range(0, num_train), y]
     margins = (scores - correct_class_score[:, np.newaxis] + 1)
+    margins[range(0, num_train), y] = 0
     margins[margins < 0] = 0
-    loss = np.sum(margins) / X.shape[0] - 1 + reg * np.sum(W * W)
 
-    mask_mat = (margins > 0).astype(np.int32)
-    mask_mat[range(0, y.shape[0]), y] = 0
+    loss = np.sum(margins) / num_train + reg * np.sum(W * W)
+    mask_mat = np.zeros(margins.shape)
+    mask_mat[margins > 0] = 1
     cube = X[:, :, np.newaxis] * mask_mat[:, np.newaxis, :]
-    correct_class_gradients = - np.sum(cube, axis=2)
+    correct_class_gradients = -1.0 * np.sum(cube, axis=2)
+    cube[range(0, num_train), :, y] = correct_class_gradients
     dW = np.sum(cube, axis=0)
-    print dW[:, y].shape
-    print correct_class_gradients.shape
-    dW[:, y] += correct_class_gradients.T
-    dW /= y.shape[0]
+    dW /= num_train
     dW += 2 * reg * W
     #############################################################################
     #                             END OF YOUR CODE                              #
