@@ -1,7 +1,7 @@
 import numpy as np
 from random import shuffle
 # from past.builtins import xrange
-
+import time
 
 def svm_loss_naive(W, X, y, reg):
     """
@@ -75,22 +75,35 @@ def svm_loss_vectorized(W, X, y, reg):
     # result in loss.                                                           #
     #############################################################################
     pass
+    tic = time.time()
     num_train = y.shape[0]
     scores = X.dot(W)
     correct_class_score = scores[range(0, num_train), y]
     margins = (scores - correct_class_score[:, np.newaxis] + 1)
     margins[range(0, num_train), y] = 0
     margins[margins < 0] = 0
-
+    toc = time.time()
+    print toc - tic
     loss = np.sum(margins) / num_train + reg * np.sum(W * W)
     mask_mat = np.zeros(margins.shape)
     mask_mat[margins > 0] = 1
+    toc = time.time()
+    print 'mask_mat[margins > 0] = 1', toc - tic
     cube = X[:, :, np.newaxis] * mask_mat[:, np.newaxis, :]
+    print 'cube =', toc - tic
     correct_class_gradients = -1.0 * np.sum(cube, axis=2)
-    cube[range(0, num_train), :, y] = correct_class_gradients
+    print 'correct_class_gradients =', toc - tic
+    #cube[range(0, num_train), :, y] += correct_class_gradients
+    toc = time.time()
+    print 'cube[range(0, num_train), :, y]:', toc - tic
     dW = np.sum(cube, axis=0)
+    print dW[range(0, num_train), y].shape
+    print correct_class_gradients.shape
+    dW[range(0, num_train), y] += correct_class_gradients
     dW /= num_train
     dW += 2 * reg * W
+    toc = time.time()
+    print toc - tic
     #############################################################################
     #                             END OF YOUR CODE                              #
     #############################################################################
