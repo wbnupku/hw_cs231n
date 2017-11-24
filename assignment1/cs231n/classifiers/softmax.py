@@ -71,24 +71,16 @@ def softmax_loss_vectorized(W, X, y, reg):
     pass
     scores = np.dot(X, W)
     num_train = X.shape[0]
-    print num_train
     # Shift the score to deal with exponantial instability
     scores -= np.max(scores, axis=1).reshape(-1, 1)
     exp_scores = np.exp(scores)
     exp_norms = np.sum(exp_scores, axis=1)
     p = exp_scores / (exp_norms.reshape(-1, 1) + 0.0000001)
-    loss = (np.sum(- np.log(p[range(0, num_train), y]))) / num_train + reg * np.sum(W * W)
-    # return loss, dW
-    # compute log likelihood loss
-    W1 = W * np.exp(W)
-    My = np.zeros((num_train, W.shape[1]), dtype=np.float32)
-    My[range(0, num_train), y] = 1
-    X_y = np.dot(X.T, My)
-
-    M = np.sum(np.exp(X_y) / (exp_norms.reshape(-1, 1) + 0.0000001), axis=0).reshape(-1, 1)
-    dW = (- W1 * M + (np.sum(X_y, axis=0).reshape(-1, 1))) / num_train
-    print dW.shape
-    dW += 2 * reg * W
+    loss = (np.sum(- np.log(p[range(0, num_train), y]))) / num_train + 0.5 * reg * np.sum(W * W)
+    # compute gradient of log likelihood loss
+    sg = np.zeros_like(p)
+    sg[range(0, num_train), y] = 1.0
+    dW = np.dot(X.T, (p - sg)) / num_train + reg * W
     #############################################################################
     #                          END OF YOUR CODE                                 #
     #############################################################################

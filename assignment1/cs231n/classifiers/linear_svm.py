@@ -85,7 +85,7 @@ def svm_loss_vectorized(W, X, y, reg):
     margins[margins < 0] = 0
     toc = time.time()
     print toc - tic
-    loss = np.sum(margins) / num_train + reg * np.sum(W * W)
+    loss = np.sum(margins) / num_train + 0.5 * reg * np.sum(W * W)
     mask_mat = np.zeros(margins.shape)
     mask_mat[margins > 0] = 1
     toc = time.time()
@@ -105,7 +105,7 @@ def svm_loss_vectorized(W, X, y, reg):
     toc = time.time()
     print 'dW = np.sum(cube, axis=0):', toc - tic
     dW /= num_train
-    dW += 2 * reg * W
+    dW += reg * W
     toc = time.time()
     print toc - tic
     #############################################################################
@@ -152,30 +152,30 @@ def svm_loss_vectorized_1(W, X, y, reg):
     margins[range(0, num_train), y] = 0
     margins[margins < 0] = 0
     toc = time.time()
-    print toc - tic
-    loss = np.sum(margins) / num_train + reg * np.sum(W * W)
+    # print toc - tic
+    loss = np.sum(margins) / num_train + 0.5 * reg * np.sum(W * W)
     mask_mat = np.zeros(margins.shape)
     mask_mat[margins > 0] = 1
     toc = time.time()
-    print 'mask_mat[margins > 0] = 1', toc - tic
+    # print 'mask_mat[margins > 0] = 1', toc - tic
     cube = X[:, :, np.newaxis] * mask_mat[:, np.newaxis, :]
     toc = time.time()
-    print 'cube =', toc - tic
+    # print 'cube =', toc - tic
     correct_class_gradients = -1.0 * np.sum(cube, axis=2)
     toc = time.time()
-    print 'correct_class_gradients =', toc - tic
+    # print 'correct_class_gradients =', toc - tic
     cube[range(0, num_train), :, y] += correct_class_gradients
     toc = time.time()
-    print 'cube[range(0, num_train), :, y]:', toc - tic
+    # print 'cube[range(0, num_train), :, y]:', toc - tic
     dW = np.sum(cube, axis=0)
-    print dW[range(0, num_train), y].shape
-    print correct_class_gradients.shape
+    # print dW[range(0, num_train), y].shape
+    # print correct_class_gradients.shape
     toc = time.time()
-    print 'dW = np.sum(cube, axis=0):', toc - tic
+    # print 'dW = np.sum(cube, axis=0):', toc - tic
     dW /= num_train
-    dW += 2 * reg * W
+    dW += reg * W
     toc = time.time()
-    print toc - tic
+    # print toc - tic
     #############################################################################
     #                             END OF YOUR CODE                              #
     #############################################################################
