@@ -56,8 +56,9 @@ def affine_backward(dout, cache):
     ###########################################################################
     D, M = w.shape
     N, M = dout.shape
-    dw = np.sum(x.reshape([N, -1])[:, :, np.newaxis] *
-                dout.reshape([N, M])[:, np.newaxis, :], axis=0)
+    # dw = np.sum(x.reshape([N, -1])[:, :, np.newaxis] *
+    #             dout.reshape([N, M])[:, np.newaxis, :], axis=0)
+    dw = x.reshape(N, D).T.dot(dout)
     db = np.sum(dout, axis=0)
     dx = np.dot(dout, w.T).reshape(x.shape)
     pass
@@ -83,8 +84,7 @@ def relu_forward(x):
     # TODO: Implement the ReLU forward pass.                                  #
     ###########################################################################
     pass
-    out = x.copy()
-    out[out < 0] = 0
+    out = np.maximum(0, x)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -108,8 +108,9 @@ def relu_backward(dout, cache):
     # TODO: Implement the ReLU backward pass.                                 #
     ###########################################################################
     pass
-    dx = np.zeros_like(x)
-    dx[x >= 0] = 1
+    # I forgot to multiply the dout
+    dx = dout
+    dx[x < 0] = 0
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################

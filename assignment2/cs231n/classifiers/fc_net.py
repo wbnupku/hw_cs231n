@@ -48,6 +48,11 @@ class TwoLayerNet(object):
         # and biases using the keys 'W2' and 'b2'.                                 #
         ############################################################################
         pass
+        self.params = {}
+        self.params['W1'] = np.random.normal(scale=weight_scale, size=[input_dim, hidden_dim])
+        self.params['b1'] = np.zeros(hidden_dim)
+        self.params['W2'] = np.random.normal(scale=weight_scale, size=(hidden_dim, num_classes))
+        self.params['b2'] = np.zeros(num_classes)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -78,6 +83,13 @@ class TwoLayerNet(object):
         # class scores for X and storing them in the scores variable.              #
         ############################################################################
         pass
+        W1 = self.params['W1']
+        b1 = self.params['b1']
+        W2 = self.params['W2']
+        b2 = self.params['b2']
+        scores1, cache1 = affine_relu_forward(X, W1, b1)
+        scores2, cache2 = affine_relu_forward(scores1, W2, b2)
+        scores = scores2
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -98,10 +110,15 @@ class TwoLayerNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         pass
+        reg = self.reg
+        loss, grad = softmax_loss(scores, y)
+        loss += 0.5 * reg * np.sum(W2 * W2) + 0.5 * reg * np.sum(W1 * W1)
+        grad += reg * W2 + reg * W1
+        dscores2, grads['W2'], grads['b2'] = affine_relu_backward(grad, cache2)
+        dscores1, grads['W1'], grads['b1'] = affine_relu_backward(dscores2, cache1)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
-
         return loss, grads
 
 
