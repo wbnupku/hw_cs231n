@@ -26,7 +26,7 @@ def affine_forward(x, w, b):
     # will need to reshape the input into rows.                               #
     ###########################################################################
     pass
-    out = np.dot(x.reshape([M, -1]), w) + b
+    out = np.dot(x.reshape([x.shape[0], -1]), w) + b
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -54,12 +54,12 @@ def affine_backward(dout, cache):
     ###########################################################################
     # TODO: Implement the affine backward pass.                               #
     ###########################################################################
-    batch_size = x.shape[0]
-    s2 = w.shape[1]
-    s1 = w.shape[0]
-    dout_mean = np.mean(dout, axis=0, keepdims=True)
-    dw = np.sum(x, axis=0, keepdims).T * np.ones([1, s2]) / batch_size * 
-
+    D, M = w.shape
+    N, M = dout.shape
+    dw = np.sum(x.reshape([N, -1])[:, :, np.newaxis] *
+                dout.reshape([N, M])[:, np.newaxis, :], axis=0)
+    db = np.sum(dout, axis=0)
+    dx = np.dot(dout, w.T).reshape(x.shape)
     pass
     ###########################################################################
     #                             END OF YOUR CODE                            #
@@ -83,6 +83,8 @@ def relu_forward(x):
     # TODO: Implement the ReLU forward pass.                                  #
     ###########################################################################
     pass
+    out = x.copy()
+    out[out < 0] = 0
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -106,6 +108,8 @@ def relu_backward(dout, cache):
     # TODO: Implement the ReLU backward pass.                                 #
     ###########################################################################
     pass
+    dx = np.zeros_like(x)
+    dx[x >= 0] = 1
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
