@@ -467,9 +467,6 @@ def conv_backward_naive_mine(dout, cache):
             windex += 1
         hindex += 1
     dx_pad /= N
-    print dx_pad.shape
-    print x_pad.shape
-    print x.shape
     dx = dx_pad[:, :, pad: H_pad - pad, pad: W_pad - pad]
     dw /= N
     db /= N
@@ -565,17 +562,18 @@ def max_pool_forward_naive(x, pool_param):
     pH, pW = pool_param['pool_height'], pool_param['pool_width']
     stride = pool_param['stride']
     N, C, H, W = x.shape
-    hindex=  0
-    mask = np.zeros_like(x)
+
     out = np.zeros([N, C, (H - pH) / stride + 1, (W - pW) / stride + 1])
-    for i in np.arange(0, pH, stride):
+    hindex = 0
+    for i in np.arange(0, H, stride):
         windex = 0
-        for j in np.arange(0, pW, stride):
+        for j in np.arange(0, W, stride):
             for c in np.arange(0, C):
-                for n in np.arange(0, N): 
-                    ind_max = np.argmax(x[n, c, :, :])
-                    mask[n, c].flat[ind_max] = 1
-                    out[n, c, hindex, windex] = x[n, c, :, :].flat[ind_max]
+                for n in np.arange(0, N):
+                    # print out[n, c, hindex, windex]
+                    # print 0, H, stride, 0, W, stride, i, j
+                    # print np.max(x[n, c, i: i + pH, j: j + pW])
+                    out[n, c, hindex, windex] = np.max(x[n, c, i: i + pH, j: j + pW])
             windex += 1
         hindex += 1
     ###########################################################################
@@ -596,23 +594,21 @@ def max_pool_backward_naive(dout, cache):
     Returns:
     - dx: Gradient with respect to x
     """
+    x, pool_param = cache
     dx = np.zeros_like(x)
     pH, pW = pool_param['pool_height'], pool_param['pool_width']
     stride = pool_param['stride']
     N, C, H, W = x.shape
-    hindex=  0
-    mask = dx
-    out = np.zeros([N, C, (H - pH) / stride + 1, (W - pW) / stride + 1])
-    for i in np.arange(0, pH, stride):
+    hindex = 0
+    for i in np.arange(0, H, stride):
         windex = 0
-        for j in np.arange(0, pW, stride):
+        for j in np.arange(0, W, stride):
             for c in np.arange(0, C):
-                for n in np.arange(0, N): 
-                    ind_max = np.argmax(x[n, c, :, :])
-                    mask[n, c].flat[ind_max] = 1
+                for n in np.arange(0, N):
+                    ind_max = np.argmax(x[n, c, i: i + pH, j: j + pW])
+                    dx[n, c, i: i + pH, j: j + pW].flat[ind_max] = dout[n, c, hindex, windex]
             windex += 1
         hindex += 1
-
     ###########################################################################
     # TODO: Implement the max pooling backward pass                           #
     ###########################################################################
@@ -655,6 +651,7 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
     # be very short; ours is less than five lines.                            #
     ###########################################################################
     pass
+    
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
