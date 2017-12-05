@@ -650,7 +650,35 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
     # version of batch normalization defined above. Your implementation should#
     # be very short; ours is less than five lines.                            #
     ###########################################################################
-    pass
+    N, D = x.shape
+    running_mean = bn_param.get('running_mean', np.zeros(x.shape[1:], dtype=x.dtype))
+    running_var = bn_param.get('running_var', np.zeros(x.shape[1:], dtype=x.dtype))
+    mode = bn_param.get('mode')
+    eps = bn_param.get()
+
+        m = x.mean(axis=0)
+        v = x.var(axis=0)
+        # update running mean and var
+        running_mean = running_mean * momentum + (1 - momentum) * m
+        running_var = running_var * momentum + (1 - momentum) * v
+        x_centered = (x - m) / np.sqrt(v + eps)
+        out = x_centered * gamma + beta
+        # cache = x_centered, gamma
+        cache = x_centered, gamma, beta, m, v, x, eps
+        #######################################################################
+        #                           END OF YOUR CODE                          #
+        #######################################################################
+    elif mode == 'test':
+        #######################################################################
+        # TODO: Implement the test-time forward pass for batch normalization. #
+        # Use the running mean and variance to normalize the incoming data,   #
+        # then scale and shift the normalized data using gamma and beta.      #
+        # Store the result in the out variable.                               #
+        #######################################################################
+        pass
+        x_centered = (x - running_mean) / np.sqrt(running_var + eps)
+        out = x_centered * gamma + beta
+
     
     ###########################################################################
     #                             END OF YOUR CODE                            #
