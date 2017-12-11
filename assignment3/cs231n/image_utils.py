@@ -1,9 +1,9 @@
 from __future__ import print_function
-from future import standard_library
-standard_library.install_aliases()
-from builtins import range
-import urllib.request, urllib.error, urllib.parse, os, tempfile
-
+# from future import standard_library
+# standard_library.install_aliases()
+# from builtins import range
+# import urllib, urllib.error, urllib.parse, os, tempfile
+import urllib, os, tempfile
 import numpy as np
 from scipy.misc import imread, imresize
 
@@ -59,17 +59,19 @@ def image_from_url(url):
     We write the image to a temporary file then read it back. Kinda gross.
     """
     try:
-        f = urllib.request.urlopen(url)
+        f = urllib.urlopen(url)
         _, fname = tempfile.mkstemp()
         with open(fname, 'wb') as ff:
             ff.write(f.read())
         img = imread(fname)
         os.remove(fname)
         return img
-    except urllib.error.URLError as e:
-        print('URL Error: ', e.reason, url)
-    except urllib.error.HTTPError as e:
-        print('HTTP Error: ', e.code, url)
+    except all as e:
+        print('image_from_url error occured', e.reason, url)
+    # except urllib.error.URLError as e:
+    #     print('URL Error: ', e.reason, url)
+    # except urllib.error.HTTPError as e:
+    #     print('HTTP Error: ', e.code, url)
 
 
 def load_image(filename, size=None):
