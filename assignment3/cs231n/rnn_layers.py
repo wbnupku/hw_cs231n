@@ -193,7 +193,7 @@ def word_embedding_forward(x, W):
     #                                                                            #
     # HINT: This can be done in one line using NumPy's array indexing.           #
     ##############################################################################
-    cache = x
+    cache = x, W
     out = W[x]
     ##############################################################################
     #                               END OF YOUR CODE                             #
@@ -223,8 +223,9 @@ def word_embedding_backward(dout, cache):
     # Note that Words can appear more than once in a sequence.                   #
     # HINT: Look up the function np.add.at                                       #
     ##############################################################################
-    x = cache
-    np.add.at(w, x, )
+    x, W = cache
+    dW = np.zeros_like(W)
+    np.add.at(dW, x, dout)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
@@ -421,7 +422,7 @@ def temporal_affine_backward(dout, cache):
 
 
 def temporal_softmax_loss(x, y, mask, verbose=False):
-    """
+    """A
     A temporal version of softmax loss for use in RNNs. We assume that we are
     making predictions over a vocabulary of size V for each timestep of a
     timeseries of length T, over a minibatch of size N. The input x gives scores

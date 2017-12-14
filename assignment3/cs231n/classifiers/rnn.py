@@ -74,7 +74,6 @@ class CaptioningRNN(object):
         for k, v in self.params.items():
             self.params[k] = v.astype(self.dtype)
 
-
     def loss(self, features, captions):
         """
         Compute training-time loss for the RNN. We input image features and
@@ -137,7 +136,22 @@ class CaptioningRNN(object):
         # defined above to store loss and gradients; grads[k] should give the      #
         # gradients for self.params[k].                                            #
         ############################################################################
-        pass
+        # step 1
+        h0, cache_proj = affine_forward(features, W_proj, b_proj)
+        if self.cell_type == 'rnn':
+            x_embed, cache_embed = word_embedding_forward(captions_in, W_embed)
+            h, cache1 = rnn_forward(x_embed, h0, Wx, Wh, b)
+            score, cache2 = temporal_affine_forward(h, W_vocab, b_vocab)
+            loss, grad = temporal_softmax_loss(score, captions_out, mask)
+            dh, dW_vocab, db_vocab = temporal_affine_backward(grad, cache2)
+            dx_embed, dh0, dWx, dWh, db = rnn_backward(dh, cache1)
+            dW_embed = word_embedding_backward(dx_embed, cache_embed)
+            _, dW_proj, db_proj = affine_backward(dh0, cache_proj)
+        grads['W_vocab'], grads['b_vocab'] = dW_vocab, db_vocab
+        grads['W_proj'], grads['b_proj'] = dW_proj, db_proj
+        grads['Wx'], grads['Wh'], grads['b'] = dWx, dWh, db
+        grads['W_embed'] = dW_embed
+
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -200,6 +214,8 @@ class CaptioningRNN(object):
         # a loop.                                                                 #
         ###########################################################################
         pass
+        h0, cache_proj = affine_forward(features, W_proj, b_proj)
+        
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
